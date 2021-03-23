@@ -1,0 +1,14 @@
+# MySQL
+infcommon_local_db_mysql:
+  image: mysql:5.5.45
+  ports:
+   - "3313:3306"
+  environment:
+   - MYSQL_ROOT_PASSWORD=root_pwd
+   - MYSQL_DATABASE=mysql
+   - MYSQL_USER=dev_user
+   - MYSQL_PASSWORD=dev_pwd
+  volumes:
+   - ./local_mysql_configuration:/docker-entrypoint-initdb.d:ro
+   - /etc/localtime:/etc/localtime:ro
+

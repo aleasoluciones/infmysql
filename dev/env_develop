@@ -1,0 +1,6 @@
+export DOCKER_HOST_IP=127.0.0.1
+export LOCAL_DB_PORT=3313
+export LOCAL_DB_URI=mysql://dev_user:dev_pwd@$DOCKER_HOST_IP:$LOCAL_DB_PORT/mysql
+export DOCKER_COMPOSE_ETC='./dev/devdocker/'
+export TEST_MODE=1
+export CONF_FILE=/tmp/
