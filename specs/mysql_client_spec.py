@@ -1,8 +1,7 @@
 from mamba import description, context, it
 from expects import expect, equal
 
-from mysql_wrapper.client import MySQLClient
-
+from infmysql.client import MySQLClient
 
 with description('MySQLClient specs'):
     with context('changing db_uri'):

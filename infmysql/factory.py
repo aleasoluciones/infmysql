@@ -1,7 +1,8 @@
 import os
 
 from infcommon.factory import Factory
-from mysql_wrapper.client import MySQLClient
+
+from infmysql.client import MySQLClient
 
 
 def mysql_client(db_uri=None):

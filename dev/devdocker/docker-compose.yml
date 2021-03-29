@@ -1,5 +1,5 @@
 # MySQL
-infcommon_local_db_mysql:
+infmysql_local_db_mysql:
   image: mysql:5.5.45
   ports:
    - "3313:3306"

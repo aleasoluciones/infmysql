@@ -2,15 +2,16 @@ from mamba import description, context, it
 from expects import expect, be, have_len, be_above, equal
 
 import os
-from mysql_wrapper import client
+
+from infmysql.client import MySQLClient
 
 
 TEST_TABLE = 'integration_test_table'
 
 
-with description('MySQLClientTest'):
+with description('Infmysql Specs'):
     with before.each:
-        self.mysql_client = client.MySQLClient(os.getenv("LOCAL_DB_URI"))
+        self.mysql_client = MySQLClient(os.getenv("LOCAL_DB_URI"))
 
         sql_query = "DROP TABLE IF EXISTS {0}".format(TEST_TABLE)
         self.mysql_client.execute(sql_query)
