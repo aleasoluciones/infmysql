@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
-setup(name="mysql_wrapper",
+setup(name="infmysql",
       version="0.0.1",
       author="Bifer Team",
-      description="Simple mysql wrapper",
+      description="Simple mysql client",
       platforms="Linux",
       packages=find_packages(
           exclude=["tests", "specs", "integration_specs", "functional_specs", "acceptance_specs"]),
