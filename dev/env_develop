@@ -1,6 +1,9 @@
-export DOCKER_HOST_IP=127.0.0.1
-export LOCAL_DB_PORT=3313
-export LOCAL_DB_URI=mysql://dev_user:dev_pwd@$DOCKER_HOST_IP:$LOCAL_DB_PORT/mysql
-export DOCKER_COMPOSE_ETC='./dev/devdocker/'
 export TEST_MODE=1
-export CONF_FILE=/tmp/
+
+export MYSQL_HOSTNAME=127.0.0.1
+export MYSQL_PORT=3313
+export MYSQL_USER=test_user
+export MYSQL_PASSWORD=test_password
+export MYSQL_DB=mysql
+
+export MYSQL_DB_URI="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOSTNAME}:${MYSQL_PORT}/${MYSQL_DB}"

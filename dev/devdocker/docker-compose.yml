@@ -2,13 +2,12 @@
 infmysql_local_db_mysql:
   image: mysql:5.5.45
   ports:
-   - "3313:3306"
+   - "${MYSQL_PORT}:3306"
   environment:
-   - MYSQL_ROOT_PASSWORD=root_pwd
-   - MYSQL_DATABASE=mysql
-   - MYSQL_USER=dev_user
-   - MYSQL_PASSWORD=dev_pwd
+   - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+   - MYSQL_DATABASE=${MYSQL_DB}
+   - MYSQL_USER=${MYSQL_USER}
+   - MYSQL_PASSWORD=${MYSQL_PASSWORD}
   volumes:
    - ./local_mysql_configuration:/docker-entrypoint-initdb.d:ro
    - /etc/localtime:/etc/localtime:ro
-
