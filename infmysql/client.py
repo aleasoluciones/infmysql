@@ -6,7 +6,6 @@ from retrying import retry
 
 MySQLDBExceptionError = MySQLdb.Error
 
-
 class MySQLClient:
     def __init__(self, db_uri):
         self._db_uri = db_uri
@@ -28,13 +27,13 @@ class MySQLClient:
         uri = urlparse(self._db_uri)
         try:
             connection = MySQLdb.connect(uri.hostname,
-                                            uri.username,
-                                            uri.password,
-                                            uri.path[1:],
-                                            port=int(uri.port) if uri.port else 3306,
-                                            use_unicode=True,
-                                            charset='utf8',
-                                            connect_timeout=5)
+                                         uri.username,
+                                         uri.password,
+                                         uri.path[1:],
+                                         port=int(uri.port) if uri.port else 3306,
+                                         use_unicode=True,
+                                         charset='utf8',
+                                         connect_timeout=5)
             connection.autocommit(True)
             cursor = connection.cursor()
             cursor.execute(sql_query, args)
