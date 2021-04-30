@@ -1,48 +1,91 @@
-from mamba import description, context, it
-from expects import expect, be, have_len, be_above, equal
+from mamba import description, context, before, it
+from expects import expect, equal, raise_error
 
+import datetime
 import os
+
+from MySQLdb import _exceptions as mysql_exceptions
 
 from infmysql.client import MySQLClient
 
 
-TEST_TABLE = 'integration_test_table'
+MYSQL_DB_URI = os.getenv('MYSQL_DB_URI')
+TEST_TABLE = 'test_table'
 
 
-with description('Infmysql Specs'):
+with description('MySQLClientTest') as self:
     with before.each:
-        self.mysql_client = MySQLClient(os.getenv("LOCAL_DB_URI"))
+        self.mysql_client = MySQLClient(MYSQL_DB_URI)
+        self.mysql_client.execute(f"DROP TABLE IF EXISTS {TEST_TABLE}")
+        self.mysql_client.execute(f"CREATE TABLE {TEST_TABLE} (id SERIAL, item varchar(10), size INT, active BOOLEAN, date TIMESTAMP, PRIMARY KEY (id));")
+        self.mysql_client.execute(f"INSERT INTO {TEST_TABLE}(item, size, active, date) VALUES(%s, %s, %s, %s);", ("item_a", 40, False, datetime.datetime.fromtimestamp(100)))
+        self.mysql_client.execute(f"INSERT INTO {TEST_TABLE}(item, size, active, date) VALUES(%s, %s, %s, %s);", ("item_b", 20, True, datetime.datetime.fromtimestamp(3700)))
 
-        sql_query = "DROP TABLE IF EXISTS {0}".format(TEST_TABLE)
-        self.mysql_client.execute(sql_query)
+    with context('FEATURE: execute'):
+        with context('happy path'):
+            with context('when selecting all rows'):
+                with it('returns a tuple containing all values'):
+                    query = f"SELECT * FROM {TEST_TABLE}"
 
-    with context('creating a table'):
-        with it('creates'):
-            sql_query = "CREATE TABLE {0} (value varchar(10))".format(TEST_TABLE)
-            result = self.mysql_client.execute(sql_query)
+                    result = self.mysql_client.execute(query)
 
-            expect(result).to(be(tuple()))
+                    expect(result).to(equal((
+                        (1, 'item_a', 40, False, datetime.datetime(1970, 1, 1, 1, 1, 40)),
+                        (2, 'item_b', 20, True, datetime.datetime(1970, 1, 1, 2, 1, 40)),
+                    )))
 
-    with context('making a query with results'):
-        with it('returns it'):
-            sql_query = "SELECT * FROM mysql.user WHERE User=%s"
+            with context('when counting rows'):
+                with it('returns number of values'):
+                    query = f"SELECT COUNT(*) FROM {TEST_TABLE}"
 
-            result = self.mysql_client.execute(sql_query, ['root'])
+                    result = self.mysql_client.execute(query)
 
-            expect(result).to(have_len(be_above(0)))
+                    expect(result[0][0]).to(equal(2))
 
-    with context('making a query with no results'):
-        with it('returns empty'):
-            sql_query = "SELECT * FROM mysql.user WHERE User=%s"
+            with context('when selecting non-existing rows'):
+                with it('returns empty tuple'):
+                    query = f"SELECT * FROM {TEST_TABLE} WHERE size > %s;"
+                    params = (50, )
 
-            result = self.mysql_client.execute(sql_query, ['non-existing-user'])
+                    result = self.mysql_client.execute(query, params)
 
-            expect(result).to(have_len(be(0)))
+                    expect(result).to(equal(()))
 
-    with context('inserting value into table'):
-        with it('returns inserted primary key id'):
-            self.mysql_client.execute("CREATE TABLE {0} (id int not null auto_increment, value varchar(10), primary key (id))".format(TEST_TABLE))
+            with context('when deleting a row'):
+                with it('returns empty tuple'):
+                    query = f"DELETE FROM {TEST_TABLE} WHERE active = %s;"
+                    params = (False, )
 
-            result = self.mysql_client.execute("INSERT INTO {0}(value) VALUES(%s)".format(TEST_TABLE), ("foo",))
+                    result = self.mysql_client.execute(query, params)
 
-            expect(result).to(equal(1))
+                    expect(result).to(equal(()))
+
+            with context('when inserting a row'):
+                with it('returns the number of rows'):
+                    query = f"INSERT INTO {TEST_TABLE}(item, size, active, date) VALUES(%s, %s, %s, %s);"
+                    params = ("item_c", 60, True, datetime.datetime.fromtimestamp(11000))
+
+                    result = self.mysql_client.execute(query, params)
+
+                    expect(result).to(equal(3))
+
+            with context('when updating a row'):
+                with it('returns empty tuple'):
+                    query = f'UPDATE {TEST_TABLE} SET size = size + %s WHERE {TEST_TABLE}.item = %s;'
+                    params = (10, 'item_a')
+
+                    result = self.mysql_client.execute(query, params)
+
+                    expect(result).to(equal(()))
+
+        with context('unhappy path'):
+            with context('when executing a malformed query'):
+                with it('raises exception from wrapped library'):
+                    malformed_query = f'UPDATE {TEST_TABLE} SET size = size + %s WHERE {TEST_TABLE}.invalid_column = %s;'
+                    params = (10, 'item_a')
+
+                    def _execute_query_with_invalid_column():
+                        self.mysql_client.execute(malformed_query, params)
+
+                    # https://www.tutorialspoint.com/why-the-hash1054-unknown-column-error-occurs-in-mysql-and-how-to-fix-it
+                    expect(_execute_query_with_invalid_column).to(raise_error(mysql_exceptions.OperationalError, 1054))
