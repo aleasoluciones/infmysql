@@ -1,5 +1,4 @@
-# MySQL
-infmysql_local_db_mysql:
+db:
   image: mysql:5.5.45
   ports:
    - "${MYSQL_PORT}:3306"
