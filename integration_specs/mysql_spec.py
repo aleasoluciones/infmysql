@@ -1,8 +1,8 @@
 from mamba import description, context, before, it
 from expects import expect, equal, raise_error
 
-import datetime
 import os
+from datetime import datetime, timezone
 
 from MySQLdb import _exceptions as mysql_exceptions
 
@@ -18,8 +18,8 @@ with description('MySQLClientTest') as self:
         self.mysql_client = MySQLClient(MYSQL_DB_URI)
         self.mysql_client.execute(f"DROP TABLE IF EXISTS {TEST_TABLE}")
         self.mysql_client.execute(f"CREATE TABLE {TEST_TABLE} (id SERIAL, item varchar(10), size INT, active BOOLEAN, date TIMESTAMP, PRIMARY KEY (id));")
-        self.mysql_client.execute(f"INSERT INTO {TEST_TABLE}(item, size, active, date) VALUES(%s, %s, %s, %s);", ("item_a", 40, False, datetime.datetime.fromtimestamp(100)))
-        self.mysql_client.execute(f"INSERT INTO {TEST_TABLE}(item, size, active, date) VALUES(%s, %s, %s, %s);", ("item_b", 20, True, datetime.datetime.fromtimestamp(3700)))
+        self.mysql_client.execute(f"INSERT INTO {TEST_TABLE}(item, size, active, date) VALUES(%s, %s, %s, %s);", ("item_a", 40, False, datetime.fromtimestamp(7300, tz=timezone.utc)))
+        self.mysql_client.execute(f"INSERT INTO {TEST_TABLE}(item, size, active, date) VALUES(%s, %s, %s, %s);", ("item_b", 20, True, datetime.fromtimestamp(3700, tz=timezone.utc)))
 
     with context('FEATURE: execute'):
         with context('happy path'):
@@ -30,8 +30,8 @@ with description('MySQLClientTest') as self:
                     result = self.mysql_client.execute(query)
 
                     expect(result).to(equal((
-                        (1, 'item_a', 40, False, datetime.datetime(1970, 1, 1, 1, 1, 40)),
-                        (2, 'item_b', 20, True, datetime.datetime(1970, 1, 1, 2, 1, 40)),
+                        (1, 'item_a', 40, 0, datetime(1970, 1, 1, 2, 1, 40)),
+                        (2, 'item_b', 20, 1, datetime(1970, 1, 1, 1, 1, 40))
                     )))
 
             with context('when counting rows'):
@@ -63,7 +63,7 @@ with description('MySQLClientTest') as self:
             with context('when inserting a row'):
                 with it('returns the number of rows'):
                     query = f"INSERT INTO {TEST_TABLE}(item, size, active, date) VALUES(%s, %s, %s, %s);"
-                    params = ("item_c", 60, True, datetime.datetime.fromtimestamp(11000))
+                    params = ("item_c", 60, True, datetime.fromtimestamp(11000))
 
                     result = self.mysql_client.execute(query, params)
 

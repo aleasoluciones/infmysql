@@ -1,5 +1,7 @@
 # infmysql
 
+[![Build status](https://travis-ci.com/aleasoluciones/infmysql.svg?branch=master)](https://travis-ci.com/aleasoluciones/infmysql)
+
 Wrapper for the [mysqlclient](https://mysqlclient.readthedocs.io) library using Python 3.7.
 
 ## Development
