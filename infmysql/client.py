@@ -2,13 +2,15 @@ from urllib.parse import urlparse
 import warnings
 
 import MySQLdb
+from MySQLdb.cursors import Cursor
 from retrying import retry
 
 MySQLDBExceptionError = MySQLdb.Error
 
 class MySQLClient:
-    def __init__(self, db_uri):
+    def __init__(self, db_uri, cursor_factory=Cursor):
         self._db_uri = db_uri
+        self._cursor_factory = cursor_factory
 
     def set_db_uri(self, db_uri):
         self._db_uri = db_uri
@@ -38,5 +40,6 @@ class MySQLClient:
                                port=int(uri.port) if uri.port else 3306,
                                use_unicode=True,
                                charset='utf8',
+                               cursorclass=self._cursor_factory,
                                autocommit=True,
                                connect_timeout=5)

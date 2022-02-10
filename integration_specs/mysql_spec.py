@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 
 from MySQLdb import _exceptions as mysql_exceptions
+from MySQLdb.cursors import DictCursor
 
 from infmysql.client import MySQLClient
 
@@ -149,3 +150,33 @@ with description('MySQLClientTest') as self:
 
                     expect(_execute_query_with_a_malformed_query).to(raise_error(mysql_exceptions.ProgrammingError, 1064))
 
+with description('MySQLClientTest (with dict cursor)') as self:
+    with before.each:
+        self.mysql_client = MySQLClient(MYSQL_DB_URI, cursor_factory=DictCursor)
+        self.mysql_client.execute(
+            f"DROP TABLE IF EXISTS {TEST_TABLE}"
+        )
+        self.mysql_client.execute(
+            f"CREATE TABLE {TEST_TABLE} (id SERIAL, item varchar(10), size INT, active BOOLEAN, date TIMESTAMP, PRIMARY KEY (id));"
+        )
+        self.mysql_client.execute(
+            f"INSERT INTO {TEST_TABLE} (item, size, active, date) VALUES(%s, %s, %s, %s);",
+            ("item_a", 40, False, datetime.fromtimestamp(7300))
+        )
+        self.mysql_client.execute(
+            f"INSERT INTO {TEST_TABLE} (item, size, active, date) VALUES(%s, %s, %s, %s);",
+            ("item_b", 20, True, datetime.fromtimestamp(3700))
+        )
+
+    with context('FEATURE: execute'):
+        with context('happy path'):
+            with context('when selecting all rows'):
+                with it('returns a tuple containing all values'):
+                    query = f"SELECT * FROM {TEST_TABLE}"
+
+                    result = self.mysql_client.execute(query)
+
+                    expect(result).to(equal((
+                        {'id': 1, 'item': 'item_a', 'size': 40, 'active': 0, 'date': datetime.fromtimestamp(7300)},
+                        {'id': 2, 'item': 'item_b', 'size': 20, 'active': 1, 'date': datetime.fromtimestamp(3700)}
+                    )))
