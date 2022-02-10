@@ -7,7 +7,7 @@ setup(name="infmysql",
       platforms="Linux",
       packages=find_packages(exclude=["specs", "integration_specs"]),
       install_requires=[
-          'mysqlclient==1.4.1',
+          'mysqlclient==2.1.0',
           'retrying==1.3.3',
           'infcommon'
       ],
