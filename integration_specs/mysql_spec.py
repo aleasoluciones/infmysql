@@ -127,14 +127,25 @@ with description('MySQLClientTest') as self:
                         ('item_b', 20),
                     )))
 
+        # To see a list of possible exceptions take a look at https://mysqlclient.readthedocs.io/MySQLdb.html#MySQLdb.DataError
         with context('unhappy path'):
-            with context('when executing a malformed query'):
+            with context('when executing with an invalid column'):
                 with it('raises exception from wrapped library'):
-                    malformed_query = f'UPDATE {TEST_TABLE} SET size = size + %s WHERE {TEST_TABLE}.invalid_column = %s;'
+                    query = f'UPDATE {TEST_TABLE} SET size = size + %s WHERE {TEST_TABLE}.invalid_column = %s;'
                     params = (10, 'item_a')
 
                     def _execute_query_with_invalid_column():
-                        self.mysql_client.execute(malformed_query, params)
+                        self.mysql_client.execute(query, params)
 
                     # https://www.tutorialspoint.com/why-the-hash1054-unknown-column-error-occurs-in-mysql-and-how-to-fix-it
                     expect(_execute_query_with_invalid_column).to(raise_error(mysql_exceptions.OperationalError, 1054))
+
+            with context('when executing with a malformed query'):
+                with it('raises exception from wrapped library'):
+                    query = f'SELEC * FROM {TEST_TABLE};'
+
+                    def _execute_query_with_a_malformed_query():
+                        self.mysql_client.execute(query)
+
+                    expect(_execute_query_with_a_malformed_query).to(raise_error(mysql_exceptions.ProgrammingError, 1064))
+
