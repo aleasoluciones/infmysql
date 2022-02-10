@@ -1,8 +1,9 @@
 # infmysql
 
 [![Build status](https://travis-ci.com/aleasoluciones/infmysql.svg?branch=master)](https://travis-ci.com/aleasoluciones/infmysql)
+![Python versions supported](https://img.shields.io/badge/supports%20python-3.7%20|%203.8%20|%203.9-blue.svg)
 
-Wrapper for the [mysqlclient](https://mysqlclient.readthedocs.io) library using Python 3.7.
+Wrapper for the [mysqlclient](https://mysqlclient.readthedocs.io) library using Python 3.
 
 ## Development
 
@@ -11,7 +12,7 @@ Wrapper for the [mysqlclient](https://mysqlclient.readthedocs.io) library using 
 Create a virtual environment, install dependencies and load environment variables.
 
 ```python
-mkvirtualenv infmysql -p $(which python3.7)
+mkvirtualenv infmysql -p $(which python3)
 dev/setup_venv.sh
 source dev/env_develop
 ```
