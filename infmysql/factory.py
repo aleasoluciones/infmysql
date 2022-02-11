@@ -13,8 +13,11 @@ def mysql_client(db_uri=None, use_dict_cursor=False):
 
     cursor_factory = _cursor_factory(use_dict_cursor)
     return Factory.instance(
-        f'mysql_client_{db_uri}_{use_dict_cursor}',
-        lambda: MySQLClient(db_uri, cursor_factory=cursor_factory),
+        f"mysql_client_{db_uri}_{use_dict_cursor}",
+        lambda: MySQLClient(
+            db_uri,
+            cursor_factory=cursor_factory,
+        ),
     )
 
 
