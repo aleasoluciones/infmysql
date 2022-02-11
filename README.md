@@ -31,24 +31,22 @@ Note that project uses Alea's [pydevlib](https://github.com/aleasoluciones/pydev
 
 Below is described the public API that this library provides.
 
-### \_\_init\_\_()
+The client can be initialized using the factory with a database URI and an optional parameter which determines if we want to use a dict cursor (false by default).
 
-The client must be initialized with a database URI.
-
-> mysql_client = **MySQLClient**(*database_uri*)
+> mysql_client = factory.**mysql_client**(*database_uri*, *use_dict_cursor=False*)
 
 ### execute()
 
 Executes a SQL query and returns the result. Passing parameters is possible by using `%s` placeholders in the SQL query, and passing a sequence of values as the second argument of the function.
 
-> mysql_client.**execute**(*sql_query*, *args*)
+> mysql_client.**execute**(*query*, *params*)
 
 ➡️ Parameters
 
-- **sql_query**: `str`
-- **args** (optional): `tuple<any>`. Defaults to `None`.
+- **query**: `str`
+- **params** (optional): `tuple<any>`. Defaults to `None`.
 
-⬅️ Returns a tuple of tuples, each containing a row of results.
+⬅️ Returns a tuple of tuples or dictionaries, each containing a row of results.
 
 `tuple<tuple<any>>`
 
@@ -57,14 +55,37 @@ Executes a SQL query and returns the result. Passing parameters is possible by u
 #### Usage example
 
 ```python
-from infmysql.client import MySQLClient
+from infmysql import factory
 
-mysql_client = MySQLClient('mysql://username:password@host:port/databasename')
+mysql_client = factory.mysql_client('mysql://username:password@host:port/databasename')
 
 sql_query = 'SELECT (name, surname, age) FROM users WHERE age < %s AND active = %s;'
 params = (30, True, )
 
 result = mysql_client.execute(sql_query, params)
 
-# (('Ann', 'White', 18, ), ('Axel', 'Schwarz', 21, ), ('Camille', 'Rouge', '27', ), )
+# (
+#   ('Ann', 'White', 18, ),
+#   ('Axel', 'Schwarz', 21, ),
+#   ('Camille', 'Rouge', '27', ),
+# )
+```
+
+#### Usage example with dict cursor
+
+```python
+from infmysql import factory
+
+mysql_client = factory.mysql_client('mysql://username:password@host:port/databasename', use_dict_cursor=True)
+
+sql_query = 'SELECT (name, surname, age) FROM users WHERE age < %s AND active = %s;'
+params = (30, True, )
+
+result = mysql_client.execute(sql_query, params)
+
+# (
+#   {'name': 'Ann', 'surname': 'White', 'age': 18},
+#   {'name': 'Axel', 'surname': 'Schwarz', 'age': 21},
+#   {'name': 'Camille', 'surname': 'Rouge', 'age': 27},
+# )
 ```
