@@ -5,6 +5,8 @@ import MySQLdb
 from MySQLdb.cursors import Cursor
 from retrying import retry
 
+from infmysql.debugger import debug_sql_call
+
 MySQLDBExceptionError = MySQLdb.Error
 
 
@@ -16,12 +18,14 @@ class MySQLClient:
     def set_db_uri(self, db_uri):
         self._db_uri = db_uri
 
+
     @retry(
         wait_exponential_multiplier=1000,
         wait_exponential_max=10000,
         stop_max_attempt_number=5,
         retry_on_exception=lambda e: isinstance(e, MySQLdb.Error),
     )
+    @debug_sql_call
     def execute(self, query, params=None):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
