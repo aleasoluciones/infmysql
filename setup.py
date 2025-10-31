@@ -8,8 +8,8 @@ setup(
     platforms="Linux",
     packages=find_packages(exclude=["specs", "integration_specs"]),
     install_requires=[
-        "mysqlclient==2.1.0",
-        "retrying==1.3.3",
+        "mysqlclient==2.2.7",
+        "retrying==1.4.2",
         "infcommon",
     ],
     dependency_links=[
