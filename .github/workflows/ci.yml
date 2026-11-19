@@ -38,10 +38,10 @@ jobs:
 
         steps:
             -   name: Checkout code
-                uses: actions/checkout@v6.0.2
+                uses: actions/checkout@v7.0.1
 
             -   name: Set up Python ${{ matrix.python-version }}
-                uses: actions/setup-python@v6.2.0
+                uses: actions/setup-python@v7.1.0
                 with:
                     python-version: ${{ matrix.python-version }}
 
@@ -52,6 +52,7 @@ jobs:
                     python -m pip install -r requirements-dev.txt
                     python -m pip install -r requirements-git.txt
                     python -m pip install -e .
+                    python -m pip check
 
             -   name: Unit tests
                 run: unit_tests
