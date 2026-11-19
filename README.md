@@ -1,7 +1,6 @@
 # infmysql
 
 [![CI](https://github.com/aleasoluciones/infmysql/actions/workflows/ci.yml/badge.svg)](https://github.com/aleasoluciones/infmysql/actions/workflows/ci.yml)
-![Python versions supported](https://img.shields.io/badge/supports%20python-3.9%20|%203.10%20|%203.11-blue.svg)
 
 Wrapper for the [mysqlclient](https://mysqlclient.readthedocs.io) library using Python 3.
 
